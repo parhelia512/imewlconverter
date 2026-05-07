@@ -62,6 +62,7 @@ public class LlmWordRankGenerater : IWordRankGenerater
         }
     }
 
+#pragma warning disable IL2026
     private void ProcessBatch(List<WordLibrary> batch)
     {
         try
@@ -96,7 +97,7 @@ public class LlmWordRankGenerater : IWordRankGenerater
             Console.WriteLine($"LLM Batch Process Error: {ex.Message}");
         }
     }
-
+#pragma warning restore IL2026
     private string BuildRequestBodyJson(string userPrompt)
     {
         var modelJson = EscapeJsonString(Config.Model);
@@ -234,9 +235,11 @@ public class LlmWordRankGenerater : IWordRankGenerater
         return result;
     }
 
+#pragma warning disable IL2026
     public int ParseRank(string responseJson)
     {
         var ranks = ParseRanks(responseJson);
         return ranks.Values.FirstOrDefault();
     }
+#pragma warning restore IL2026
 }

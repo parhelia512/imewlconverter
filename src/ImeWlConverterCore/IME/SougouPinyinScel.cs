@@ -277,9 +277,8 @@ public class SougouPinyinScel : BaseImport, IWordLibraryImport, IWordLibraryExpo
 
     private void WriteMetaInfo(FileStream fs, WordLibraryList wlList, string outputPath)
     {
-        // 0x0130: 名称（520字节）— 使用输出文件名（不含扩展名）
-        var dictName = Path.GetFileNameWithoutExtension(outputPath);
-        WriteScelField(fs, dictName, 520);
+        // 0x0130: 名称（520字节）
+        WriteScelField(fs, "深蓝词库转换", 520);
 
         // 0x0338: 类型（520字节）
         WriteScelField(fs, "自定义", 520);
