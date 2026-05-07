@@ -26,7 +26,7 @@ public abstract class TextFormatExporter : IFormatExporter
     /// <summary>Optional header to write before entries.</summary>
     protected virtual string? GetHeader() => null;
 
-    public Task<ExportResult> ExportAsync(
+    public async Task<ExportResult> ExportAsync(
         IReadOnlyList<WordEntry> entries, Stream output,
         ExportOptions? options = null, CancellationToken ct = default)
     {
@@ -36,7 +36,7 @@ public abstract class TextFormatExporter : IFormatExporter
 
         var header = GetHeader();
         if (header != null)
-            writer.Write(header + LineEnding);
+            await writer.WriteAsync((header + LineEnding).AsMemory(), ct);
 
         foreach (var entry in entries)
         {
@@ -46,7 +46,7 @@ public abstract class TextFormatExporter : IFormatExporter
                 var line = FormatEntry(entry);
                 if (line != null)
                 {
-                    writer.Write(line + LineEnding);
+                    await writer.WriteAsync((line + LineEnding).AsMemory(), ct);
                     count++;
                 }
             }
@@ -56,11 +56,11 @@ public abstract class TextFormatExporter : IFormatExporter
             }
         }
 
-        writer.Flush();
-        return Task.FromResult(new ExportResult
+        await writer.FlushAsync(ct);
+        return new ExportResult
         {
             EntryCount = count,
             ErrorCount = errorCount
-        });
+        };
     }
 }

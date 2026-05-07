@@ -124,6 +124,48 @@ To add support for a new IME format:
 
 3. Add the format constant to `ConstantString.cs` with a short code (e.g., `SOUGOU_XIBAO_SCEL_C = "scel"`)
 
+### New Architecture (refactor branch)
+
+The codebase is being modernized with a clean layered architecture:
+
+```
+src/
+├── ImeWlConverter.Abstractions/     # Zero-dependency interface layer
+│   ├── Contracts/                   # IFormatImporter, IFormatExporter, IConversionPipeline, etc.
+│   ├── Models/                      # WordEntry, WordCode, FormatMetadata (sealed records)
+│   ├── Options/                     # ConversionOptions, FilterOptions, etc.
+│   ├── Results/                     # Result<T>, ImportResult, ExportResult
+│   └── Enums/                       # CodeType, SortType, PinyinType
+├── ImeWlConverter.Core/             # Business logic services
+│   ├── Pipeline/                    # ConversionPipeline, FilterPipeline
+│   ├── CodeGeneration/              # CodeGenerationService
+│   ├── Adapters/                    # Legacy ↔ New interface bridges
+│   └── Utilities/                   # NumberToChineseConverter
+├── ImeWlConverter.Formats/          # All IME format implementations (86 files)
+│   ├── Shared/                      # TextFormatImporter/Exporter base classes
+│   ├── GooglePinyin/                # GooglePinyinImporter + GooglePinyinExporter
+│   ├── Rime/                        # RimeImporter + RimeExporter
+│   └── ... (40+ format directories)
+├── ImeWlConverter.SourceGenerators/ # Compile-time format registration
+├── ImeWlConverterCore/              # Legacy core library (still in use)
+├── ImeWlConverterCmd/               # CLI entry point
+├── ImeWlConverterMac/               # macOS GUI (Avalonia)
+└── ImeWlConverterCoreTest/          # xUnit tests
+```
+
+**Key Design Principles:**
+- **AI-friendly**: Each file < 300 lines, explicit dependencies, sealed records
+- **No runtime reflection**: CLI uses FormatRegistrar for explicit format registration
+- **Source Generator**: [FormatPlugin] attribute enables compile-time format discovery
+- **Adapter pattern**: Legacy code coexists with new interfaces via adapters
+
+**Adding a new format (new architecture):**
+1. Create `{Format}Importer.cs` extending `TextFormatImporter` or `BinaryFormatImporter`
+2. Create `{Format}Exporter.cs` extending `TextFormatExporter`
+3. Add `[FormatPlugin("code", "Display Name", sortOrder)]` attribute
+4. Add the format to `FormatRegistrar.cs` in the CLI project
+5. Source Generator auto-generates DI registration
+
 ## 项目约定
 
 ### 版本号管理
@@ -170,6 +212,8 @@ Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 ## Integration Tests
 
 项目使用基于 shell 的集成测试框架，位于 `tests/integration/`。
+
+**Test Framework**: xUnit 2.9.3 (migrated from NUnit in refactor branch)
 
 ### Test Structure
 

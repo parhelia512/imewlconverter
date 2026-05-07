@@ -1,5 +1,6 @@
 namespace ImeWlConverter.Formats.Shared;
 
+using System.Runtime.CompilerServices;
 using System.Text;
 using ImeWlConverter.Abstractions.Contracts;
 using ImeWlConverter.Abstractions.Models;
@@ -23,7 +24,7 @@ public abstract class TextFormatImporter : IFormatImporter
     /// <summary>Whether a line should be processed (override to skip comments/headers).</summary>
     protected virtual bool IsContentLine(string line) => !string.IsNullOrWhiteSpace(line);
 
-    public Task<ImportResult> ImportAsync(Stream input, ImportOptions? options = null, CancellationToken ct = default)
+    public async Task<ImportResult> ImportAsync(Stream input, ImportOptions? options = null, CancellationToken ct = default)
     {
         var entries = new List<WordEntry>();
         var errors = new List<string>();
@@ -31,7 +32,7 @@ public abstract class TextFormatImporter : IFormatImporter
         using var reader = new StreamReader(input, FileEncoding);
         string? line;
         var lineNumber = 0;
-        while ((line = reader.ReadLine()) != null)
+        while ((line = await reader.ReadLineAsync(ct)) != null)
         {
             ct.ThrowIfCancellationRequested();
             lineNumber++;
@@ -50,11 +51,43 @@ public abstract class TextFormatImporter : IFormatImporter
             }
         }
 
-        return Task.FromResult(new ImportResult
+        return new ImportResult
         {
             Entries = entries,
             ErrorCount = errors.Count,
             Errors = errors
-        });
+        };
+    }
+
+    /// <summary>Stream word entries one at a time for large files.</summary>
+    public async IAsyncEnumerable<WordEntry> ImportStreamingAsync(
+        Stream input,
+        ImportOptions? options = null,
+        [EnumeratorCancellation] CancellationToken ct = default)
+    {
+        using var reader = new StreamReader(input, FileEncoding);
+        string? line;
+        while ((line = await reader.ReadLineAsync(ct)) != null)
+        {
+            ct.ThrowIfCancellationRequested();
+            if (!IsContentLine(line))
+                continue;
+
+            WordEntry[]? entries = null;
+            try
+            {
+                entries = ParseLine(line).ToArray();
+            }
+            catch
+            {
+                // Skip parse errors in streaming mode
+            }
+
+            if (entries != null)
+            {
+                foreach (var entry in entries)
+                    yield return entry;
+            }
+        }
     }
 }
