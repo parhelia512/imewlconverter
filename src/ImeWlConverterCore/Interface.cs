@@ -64,6 +64,14 @@ public interface IMultiCodeType
     CodeType CodeType { get; }
 }
 
+/// <summary>
+///     二进制格式词库导出接口，用于 scel 等非文本格式
+/// </summary>
+public interface IBinaryWordLibraryExport
+{
+    void ExportToBinary(WordLibraryList wlList, string outputPath);
+}
+
 public interface IStreamPrepare
 {
     void Prepare();

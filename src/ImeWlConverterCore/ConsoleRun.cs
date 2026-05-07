@@ -338,8 +338,14 @@ public class ConsoleRun
 
         Console.WriteLine("转换开始...");
 
+        // 二进制导出模式
+        if (export is IBinaryWordLibraryExport binaryExport)
+        {
+            var wlList = mainBody.ConvertAndGetWordLibraryList(inputFiles);
+            binaryExport.ExportToBinary(wlList, outputPath);
+        }
         // 批量输出模式（输出路径以 / 结尾或为目录）
-        if (outputPath.EndsWith("/") || outputPath.EndsWith("\\"))
+        else if (outputPath.EndsWith("/") || outputPath.EndsWith("\\"))
         {
             mainBody.Convert(inputFiles, outputPath);
         }

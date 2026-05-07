@@ -270,6 +270,54 @@ public class MainBody : IDisposable
         return string.Join("\r\n", ExportContents.ToArray());
     }
 
+    /// <summary>
+    ///     转换多个文件并返回处理后的词库列表（用于二进制导出）
+    /// </summary>
+    public WordLibraryList ConvertAndGetWordLibraryList(IList<string> filePathes)
+    {
+        var allWlList = new WordLibraryList();
+
+        timer.Start();
+        isImportProgress = true;
+
+        foreach (var file in filePathes)
+        {
+            if (FileOperationHelper.GetFileSize(file) == 0)
+            {
+                ProcessNotice("词库（" + Path.GetFileName(file) + "）为空，请检查");
+                continue;
+            }
+
+            var wlList = Import.Import(file);
+            wlList = Filter(wlList);
+            allWlList.AddRange(wlList);
+        }
+
+        isImportProgress = false;
+        if (SelectedTranslate != ChineseTranslate.NotTrans)
+        {
+            allWlList = ConvertChinese(allWlList);
+        }
+
+        if (Export.CodeType != CodeType.NoCode)
+        {
+            GenerateWordRank(allWlList);
+        }
+
+        if (Import.CodeType != Export.CodeType)
+        {
+            GenerateDestinationCode(allWlList, Export.CodeType);
+        }
+
+        if (Export.CodeType != CodeType.NoCode) allWlList = RemoveEmptyCodeData(allWlList);
+        Count = allWlList.Count;
+
+        ReplaceAfterCode(allWlList);
+
+        timer.Stop();
+        return allWlList;
+    }
+
     private WordLibraryList RemoveEmptyCodeData(WordLibraryList wordLibraryList)
     {
         var list = new WordLibraryList();
