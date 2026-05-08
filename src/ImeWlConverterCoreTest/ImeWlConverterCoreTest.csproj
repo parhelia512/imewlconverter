@@ -89,5 +89,7 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\ImeWlConverterCore\ImeWlConverterCore.csproj"/>
+        <ProjectReference Include="..\ImeWlConverter.Core\ImeWlConverter.Core.csproj"/>
+        <ProjectReference Include="..\ImeWlConverter.Abstractions\ImeWlConverter.Abstractions.csproj"/>
     </ItemGroup>
 </Project>

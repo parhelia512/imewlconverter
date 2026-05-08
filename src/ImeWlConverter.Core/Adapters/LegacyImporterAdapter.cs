@@ -104,7 +104,7 @@ public sealed class LegacyImporterAdapter : IFormatImporter
     }
 
     /// <summary>Maps legacy <see cref="OldCodeType"/> to new <see cref="NewCodeType"/>.</summary>
-    internal static NewCodeType MapCodeType(OldCodeType old) => old switch
+    public static NewCodeType MapCodeType(OldCodeType old) => old switch
     {
         OldCodeType.Pinyin => NewCodeType.Pinyin,
         OldCodeType.Wubi => NewCodeType.Wubi86,
