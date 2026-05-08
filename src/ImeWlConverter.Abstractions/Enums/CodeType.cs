@@ -57,5 +57,17 @@ public enum CodeType
     Phrase,
 
     /// <summary>Shuangpin (双拼) encoding.</summary>
-    Shuangpin
+    Shuangpin,
+
+    /// <summary>Yong (永码) encoding.</summary>
+    Yong,
+
+    /// <summary>Internal code encoding.</summary>
+    InnerCode,
+
+    /// <summary>User-defined phrase encoding.</summary>
+    UserDefinePhrase,
+
+    /// <summary>Unknown encoding type.</summary>
+    Unknown
 }
