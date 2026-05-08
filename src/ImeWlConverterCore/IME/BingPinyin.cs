@@ -22,7 +22,7 @@ using Studyzy.IMEWLConverter.Entities;
 namespace Studyzy.IMEWLConverter.IME;
 
 [ComboBoxShow(ConstantString.BING_PINYIN, ConstantString.BING_PINYIN_C, 135)]
-public class BingPinyin : BaseTextImport, IWordLibraryTextImport, IWordLibraryExport
+public sealed class BingPinyin : BaseTextImport, IWordLibraryTextImport, IWordLibraryExport
 {
     public override WordLibraryList ImportLine(string line)
     {

@@ -27,7 +27,7 @@ using Studyzy.IMEWLConverter.Helpers;
 namespace Studyzy.IMEWLConverter.IME;
 
 [ComboBoxShow(ConstantString.QQ_PINYIN_QPYD, ConstantString.QQ_PINYIN_QPYD_C, 60)]
-public class QQPinyinQpyd : BaseImport, IWordLibraryImport
+public sealed class QQPinyinQpyd : BaseImport, IWordLibraryImport
 {
     #region IWordLibraryImport Members
 

@@ -29,7 +29,7 @@ using Studyzy.IMEWLConverter.Helpers;
 namespace Studyzy.IMEWLConverter.IME;
 
 [ComboBoxShow(ConstantString.LINGOES_LD2, ConstantString.LINGOES_LD2_C, 200)]
-public class LingoesLd2 : BaseImport, IWordLibraryImport
+public sealed class LingoesLd2 : BaseImport, IWordLibraryImport
 {
     //private readonly Encoding[] AVAIL_ENCODINGS = new[]
     //    {

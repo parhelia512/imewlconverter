@@ -26,7 +26,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     词语+Tab+编码（拼音空格隔开）+Tab+词频
 /// </summary>
 [ComboBoxShow(ConstantString.RIME_USERDB, ConstantString.RIME_USERDB_C, 150)]
-public class RimeUserDb : BaseTextImport, IWordLibraryTextImport, IMultiCodeType
+public sealed class RimeUserDb : BaseTextImport, IWordLibraryTextImport, IMultiCodeType
 {
     private string lineSplitString;
 

@@ -23,7 +23,7 @@ using Studyzy.IMEWLConverter.Entities;
 namespace Studyzy.IMEWLConverter.IME;
 
 [ComboBoxShow(ConstantString.SOUGOU_PINYIN, ConstantString.SOUGOU_PINYIN_C, 10)]
-public class SougouPinyin : BaseTextImport, IWordLibraryExport, IWordLibraryTextImport
+public sealed class SougouPinyin : BaseTextImport, IWordLibraryExport, IWordLibraryTextImport
 {
     #region IWordLibraryImport 成员
 

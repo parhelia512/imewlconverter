@@ -12,7 +12,7 @@ using Studyzy.IMEWLConverter.Helpers;
 
 namespace Studyzy.IMEWLConverter.IME;
 
-public class SougouPinyinDict
+public sealed class SougouPinyinDict
 {
     public static readonly ReadOnlyCollection<int> DatatypeHashSize = new List<int>
     {

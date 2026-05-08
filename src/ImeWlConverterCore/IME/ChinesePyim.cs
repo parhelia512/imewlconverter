@@ -27,7 +27,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     http://tumashu.github.io/chinese-pyim
 /// </summary>
 [ComboBoxShow(ConstantString.CHINESE_PYIM, ConstantString.CHINESE_PYIM_C, 177)]
-public class ChinesePyim : BaseTextImport, IWordLibraryTextImport, IWordLibraryExport
+public sealed class ChinesePyim : BaseTextImport, IWordLibraryTextImport, IWordLibraryExport
 {
     #region IWordLibraryImport 成员
 

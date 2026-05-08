@@ -30,7 +30,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     搜狗细胞词库
 /// </summary>
 [ComboBoxShow(ConstantString.SOUGOU_XIBAO_SCEL, ConstantString.SOUGOU_XIBAO_SCEL_C, 20)]
-public class SougouPinyinScel : BaseImport, IWordLibraryImport, IWordLibraryExport, IBinaryWordLibraryExport
+public sealed class SougouPinyinScel : BaseImport, IWordLibraryImport, IWordLibraryExport, IBinaryWordLibraryExport
 {
     private Dictionary<int, string> pyDic = new();
 

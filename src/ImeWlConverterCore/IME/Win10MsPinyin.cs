@@ -29,7 +29,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     Win10微软拼音
 /// </summary>
 [ComboBoxShow(ConstantString.WIN10_MS_PINYIN, ConstantString.WIN10_MS_PINYIN_C, 130)]
-public class Win10MsPinyin : IWordLibraryExport, IWordLibraryImport
+public sealed class Win10MsPinyin : IWordLibraryExport, IWordLibraryImport
 {
     public Win10MsPinyin()
     {

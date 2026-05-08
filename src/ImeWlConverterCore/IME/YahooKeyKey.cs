@@ -28,7 +28,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     雅虎奇摩输入法
 /// </summary>
 [ComboBoxShow(ConstantString.YAHOO_KEYKEY, ConstantString.YAHOO_KEYKEY_C, 200)]
-public class YahooKeyKey : BaseTextImport, IWordLibraryExport, IWordLibraryTextImport
+public sealed class YahooKeyKey : BaseTextImport, IWordLibraryExport, IWordLibraryTextImport
 {
     public override CodeType CodeType => CodeType.Zhuyin;
 

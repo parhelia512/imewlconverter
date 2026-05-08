@@ -27,7 +27,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     词汇+Tab+拼音（'分割）+Tab+词频
 /// </summary>
 [ComboBoxShow(ConstantString.SHOUXIN_PINYIN, ConstantString.SHOUXIN_PINYIN_C, 180)]
-public class ShouxinPinyin : BaseTextImport, IWordLibraryExport, IWordLibraryTextImport
+public sealed class ShouxinPinyin : BaseTextImport, IWordLibraryExport, IWordLibraryTextImport
 {
     #region IWordLibraryImport 成员
 

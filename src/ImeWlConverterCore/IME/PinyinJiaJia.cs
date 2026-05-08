@@ -25,7 +25,7 @@ namespace Studyzy.IMEWLConverter.IME;
 /// <summary>
 /// </summary>
 [ComboBoxShow(ConstantString.PINYIN_JIAJIA, ConstantString.PINYIN_JIAJIA_C, 120)]
-public class PinyinJiaJia : BaseTextImport, IWordLibraryExport, IWordLibraryTextImport
+public sealed class PinyinJiaJia : BaseTextImport, IWordLibraryExport, IWordLibraryTextImport
 {
     #region IWordLibraryExport 成员
 

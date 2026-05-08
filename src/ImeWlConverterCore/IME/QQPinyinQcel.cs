@@ -26,7 +26,7 @@ using Studyzy.IMEWLConverter.Helpers;
 namespace Studyzy.IMEWLConverter.IME;
 
 [ComboBoxShow(ConstantString.QQ_PINYIN_QCEL, ConstantString.QQ_PINYIN_QCEL_C, 60)]
-public class QQPinyinQcel : BaseImport, IWordLibraryImport
+public sealed class QQPinyinQcel : BaseImport, IWordLibraryImport
 {
     private Dictionary<int, string> pyDic = new();
 

@@ -27,7 +27,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     仓颉输入法，主要用于台湾
 /// </summary>
 [ComboBoxShow(ConstantString.CANGJIE_PLATFORM, ConstantString.CANGJIE_PLATFORM_C, 230)]
-public class CangjiePlatform : BaseTextImport, IWordLibraryExport, IWordLibraryTextImport
+public sealed class CangjiePlatform : BaseTextImport, IWordLibraryExport, IWordLibraryTextImport
 {
     public override CodeType CodeType => CodeType.Cangjie;
 

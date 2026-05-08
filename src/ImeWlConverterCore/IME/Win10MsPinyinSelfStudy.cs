@@ -33,7 +33,7 @@ namespace Studyzy.IMEWLConverter.IME;
     ConstantString.WIN10_MS_PINYIN_SELF_STUDY_C,
     131
 )]
-public class Win10MsPinyinSelfStudy : IWordLibraryExport, IWordLibraryImport
+public sealed class Win10MsPinyinSelfStudy : IWordLibraryExport, IWordLibraryImport
 {
     public Win10MsPinyinSelfStudy()
     {

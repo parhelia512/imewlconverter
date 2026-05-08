@@ -29,7 +29,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     拼音（无分隔符）+空格+词语1+空格+词语2...
 /// </summary>
 [ComboBoxShow(ConstantString.XIAOXIAO, ConstantString.XIAOXIAO_C, 100)]
-public class Xiaoxiao
+public sealed class Xiaoxiao
     : BaseTextImport,
         IWordLibraryExport,
         IWordLibraryTextImport,

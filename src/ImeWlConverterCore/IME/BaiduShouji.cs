@@ -23,7 +23,7 @@ using Studyzy.IMEWLConverter.Entities;
 namespace Studyzy.IMEWLConverter.IME;
 
 [ComboBoxShow(ConstantString.BAIDU_SHOUJI, ConstantString.BAIDU_SHOUJI_C, 1000)]
-public class BaiduShouji : BaseTextImport, IWordLibraryTextImport, IWordLibraryExport
+public sealed class BaiduShouji : BaseTextImport, IWordLibraryTextImport, IWordLibraryExport
 {
     public override Encoding Encoding => Encoding.Unicode;
 

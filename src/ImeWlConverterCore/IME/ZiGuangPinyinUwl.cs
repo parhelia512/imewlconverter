@@ -29,7 +29,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     紫光Uwl格式
 /// </summary>
 [ComboBoxShow(ConstantString.ZIGUANG_PINYIN_UWL, ConstantString.ZIGUANG_PINYIN_UWL_C, 171)]
-public class ZiGuangPinyinUwl : BaseImport, IWordLibraryImport
+public sealed class ZiGuangPinyinUwl : BaseImport, IWordLibraryImport
 {
     #region IWordLibraryImport Members
 
@@ -75,7 +75,7 @@ public class ZiGuangPinyinUwl : BaseImport, IWordLibraryImport
     }
 }
 
-public class Segment
+public sealed class Segment
 {
     //private readonly IList<byte> LenDic = new List<byte>
     //{0x05, 0x87, 0x09, 0x8B, 0x0D, 0x8F, 0x11, 0x13, 0x15, 0x17, 0x19};

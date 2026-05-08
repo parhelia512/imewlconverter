@@ -26,7 +26,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     编码 词语1 词语2 词语3
 /// </summary>
 [ComboBoxShow(ConstantString.XIAOXIAO_ERBI, ConstantString.XIAOXIAO_ERBI_C, 100)]
-public class XiaoxiaoErbi : BaseImport, IWordLibraryExport
+public sealed class XiaoxiaoErbi : BaseImport, IWordLibraryExport
 {
     #region IWordLibraryExport 成员
 

@@ -32,7 +32,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     http://www.freewb.org/
 /// </summary>
 [ComboBoxShow(ConstantString.JIDIAN_MBDICT, ConstantString.JIDIAN_MBDICT_C, 190)]
-public class Jidian_MBDict : IWordLibraryImport
+public sealed class Jidian_MBDict : IWordLibraryImport
 {
     public Jidian_MBDict()
     {

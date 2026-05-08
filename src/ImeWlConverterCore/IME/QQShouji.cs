@@ -23,7 +23,7 @@ using Studyzy.IMEWLConverter.Entities;
 namespace Studyzy.IMEWLConverter.IME;
 
 [ComboBoxShow(ConstantString.QQ_SHOUJI, ConstantString.QQ_SHOUJI_C, 1030)]
-public class QQShouji : BaseTextImport, IWordLibraryTextImport, IWordLibraryExport
+public sealed class QQShouji : BaseTextImport, IWordLibraryTextImport, IWordLibraryExport
 {
     private int number = 1;
 

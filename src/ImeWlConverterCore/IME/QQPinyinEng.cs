@@ -26,7 +26,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     QQ拼音支持单独的英语词库，使用“英文单词,词频”的格式
 /// </summary>
 [ComboBoxShow(ConstantString.QQ_PINYIN_ENG, ConstantString.QQ_PINYIN_ENG_C, 80)]
-public class QQPinyinEng : BaseTextImport, IWordLibraryTextImport, IWordLibraryExport
+public sealed class QQPinyinEng : BaseTextImport, IWordLibraryTextImport, IWordLibraryExport
 {
     public override WordLibraryList ImportLine(string line)
     {

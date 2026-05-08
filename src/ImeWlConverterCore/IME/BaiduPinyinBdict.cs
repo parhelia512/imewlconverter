@@ -26,7 +26,7 @@ using Studyzy.IMEWLConverter.Helpers;
 namespace Studyzy.IMEWLConverter.IME;
 
 [ComboBoxShow(ConstantString.BAIDU_BDICT, ConstantString.BAIDU_BDICT_C, 100)]
-public class BaiduPinyinBdict : BaseImport, IWordLibraryImport
+public sealed class BaiduPinyinBdict : BaseImport, IWordLibraryImport
 {
     private readonly List<string> Shengmu = new()
     {

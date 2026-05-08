@@ -26,7 +26,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     Google拼音输入法
 /// </summary>
 [ComboBoxShow(ConstantString.GOOGLE_PINYIN, ConstantString.GOOGLE_PINYIN_C, 110)]
-public class GooglePinyin : BaseTextImport, IWordLibraryExport, IWordLibraryTextImport
+public sealed class GooglePinyin : BaseTextImport, IWordLibraryExport, IWordLibraryTextImport
 {
     #region IWordLibraryImport 成员
 

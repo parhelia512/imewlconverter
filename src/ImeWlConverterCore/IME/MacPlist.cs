@@ -26,7 +26,7 @@ using Studyzy.IMEWLConverter.Helpers;
 namespace Studyzy.IMEWLConverter.IME;
 
 [ComboBoxShow(ConstantString.MAC_PLIST, ConstantString.MAC_PLIST_C, 150)]
-public class MacPlist : BaseImport, IWordLibraryTextImport, IWordLibraryExport
+public sealed class MacPlist : BaseImport, IWordLibraryTextImport, IWordLibraryExport
 {
     private readonly string Footer = "</array></plist>";
 

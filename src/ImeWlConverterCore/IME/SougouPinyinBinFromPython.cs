@@ -23,7 +23,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     搜狗二进制备份词库翻译自Python
 /// </summary>
 [ComboBoxShow(ConstantString.SOUGOU_PINYIN_BIN, ConstantString.SOUGOU_PINYIN_BIN_C, 30)]
-public class SougouPinyinBinFromPython : BaseImport, IWordLibraryImport
+public sealed class SougouPinyinBinFromPython : BaseImport, IWordLibraryImport
 {
     private const int UserDictHeaderSize = 80;
 

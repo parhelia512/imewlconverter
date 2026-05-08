@@ -17,7 +17,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     百度拼音备份词库
 /// </summary>
 [ComboBoxShow(ConstantString.BAIDU_PINYIN_BACKUP, ConstantString.BAIDU_PINYIN_BACKUP_C, 20)]
-public class BaiduPinyinBackup : BaseImport, IWordLibraryImport
+public sealed class BaiduPinyinBackup : BaseImport, IWordLibraryImport
 {
     #region IWordLibraryImport 成员
 

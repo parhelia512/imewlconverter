@@ -23,7 +23,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     极点的词库格式为“编码 词语 词语 词语”\r\n
 /// </summary>
 [ComboBoxShow(ConstantString.JIDIAN_ZHENGMA, ConstantString.JIDIAN_ZHENGMA_C, 190)]
-public class JidianZhengma : Jidian, IWordLibraryTextImport, IWordLibraryExport
+public sealed class JidianZhengma : Jidian, IWordLibraryTextImport, IWordLibraryExport
 {
     #region IWordLibraryExport 成员
 

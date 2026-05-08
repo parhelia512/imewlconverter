@@ -27,7 +27,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     用户自定义的短语
 /// </summary>
 [ComboBoxShow(ConstantString.USER_PHRASE, ConstantString.USER_PHRASE_C, 110)]
-public class UserDefinePhrase : BaseImport, IWordLibraryExport //, IWordLibraryTextImport
+public sealed class UserDefinePhrase : BaseImport, IWordLibraryExport //, IWordLibraryTextImport
 {
     public UserDefinePhrase()
     {

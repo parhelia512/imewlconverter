@@ -29,7 +29,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     Gboard输入法
 /// </summary>
 [ComboBoxShow(ConstantString.GBOARD, ConstantString.GBOARD_C, 111)]
-public class Gboard : BaseImport, IWordLibraryExport, IWordLibraryImport
+public sealed class Gboard : BaseImport, IWordLibraryExport, IWordLibraryImport
 {
     public Gboard()
     {

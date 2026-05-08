@@ -23,7 +23,7 @@ using Studyzy.IMEWLConverter.Entities;
 namespace Studyzy.IMEWLConverter.IME;
 
 [ComboBoxShow(ConstantString.IFLY_IME, ConstantString.IFLY_IME_C, 1050)]
-public class iFlyIME : NoPinyinWordOnly
+public sealed class iFlyIME : NoPinyinWordOnly
 {
     public override Encoding Encoding => Encoding.UTF8;
 

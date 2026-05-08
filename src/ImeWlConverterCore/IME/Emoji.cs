@@ -26,7 +26,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     😀   汉字
 /// </summary>
 [ComboBoxShow(ConstantString.EMOJI, ConstantString.EMOJI_C, 999)]
-public class Emoji : BaseTextImport, IWordLibraryTextImport
+public sealed class Emoji : BaseTextImport, IWordLibraryTextImport
 {
     private static readonly Regex regex = new("^[a-zA-Z]+$");
     public override CodeType CodeType => CodeType.NoCode;

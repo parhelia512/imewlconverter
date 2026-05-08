@@ -24,7 +24,7 @@ using Studyzy.IMEWLConverter.Entities;
 namespace Studyzy.IMEWLConverter.IME;
 
 [ComboBoxShow(ConstantString.QQ_PINYIN, ConstantString.QQ_PINYIN_C, 50)]
-public class QQPinyin : BaseTextImport, IWordLibraryTextImport, IWordLibraryExport
+public sealed class QQPinyin : BaseTextImport, IWordLibraryTextImport, IWordLibraryExport
 {
     public override WordLibraryList ImportLine(string line)
     {

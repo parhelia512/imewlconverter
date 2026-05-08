@@ -26,7 +26,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     LibIME (https://github.com/fcitx/libime) 文本格式
 /// </summary>
 [ComboBoxShow(ConstantString.LIBIME_TEXT, ConstantString.LIBIME_TEXT_C, 500)]
-public class LibIMEText : BaseTextImport, IWordLibraryExport, IWordLibraryTextImport
+public sealed class LibIMEText : BaseTextImport, IWordLibraryExport, IWordLibraryTextImport
 {
     public override Encoding Encoding => Encoding.UTF8;
 

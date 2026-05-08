@@ -26,7 +26,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     超音速录输入法
 /// </summary>
 [ComboBoxShow(ConstantString.CHAO_YIN, ConstantString.CHAO_YIN_C, 190)]
-public class Chaoyin : BaseImport, IWordLibraryExport
+public sealed class Chaoyin : BaseImport, IWordLibraryExport
 {
     //#region IWordLibraryImport 成员
 

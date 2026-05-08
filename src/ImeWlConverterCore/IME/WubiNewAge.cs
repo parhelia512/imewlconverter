@@ -23,7 +23,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     搜狗五笔的词库格式为“五笔编码 词语”\r\n
 /// </summary>
 [ComboBoxShow(ConstantString.WUBI_NEWAGE, ConstantString.WUBI_NEWAGE_C, 221)]
-public class WubiNewAge : Wubi86
+public sealed class WubiNewAge : Wubi86
 {
     public override CodeType CodeType => CodeType.WubiNewAge;
 }

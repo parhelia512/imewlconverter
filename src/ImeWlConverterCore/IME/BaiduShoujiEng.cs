@@ -26,7 +26,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     百度手机输入法支持单独的英语词库，格式“单词Tab词频”
 /// </summary>
 [ComboBoxShow(ConstantString.BAIDU_SHOUJI_ENG, ConstantString.BAIDU_SHOUJI_ENG_C, 1010)]
-public class BaiduShoujiEng : BaseTextImport, IWordLibraryTextImport, IWordLibraryExport
+public sealed class BaiduShoujiEng : BaseTextImport, IWordLibraryTextImport, IWordLibraryExport
 {
     public override Encoding Encoding => Encoding.ASCII;
 

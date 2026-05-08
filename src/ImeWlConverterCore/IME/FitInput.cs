@@ -23,7 +23,7 @@ using Studyzy.IMEWLConverter.Entities;
 namespace Studyzy.IMEWLConverter.IME;
 
 [ComboBoxShow(ConstantString.FIT, ConstantString.FIT_C, 140)]
-public class FitInput : BaseTextImport, IWordLibraryExport, IWordLibraryTextImport
+public sealed class FitInput : BaseTextImport, IWordLibraryExport, IWordLibraryTextImport
 {
     public override Encoding Encoding => new UTF8Encoding(false);
 

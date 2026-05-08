@@ -26,7 +26,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     以前叫紫光输入法，现在改名叫华宇拼音输入法
 /// </summary>
 [ComboBoxShow(ConstantString.ZIGUANG_PINYIN, ConstantString.ZIGUANG_PINYIN_C, 170)]
-public class ZiGuangPinyin : BaseTextImport, IWordLibraryTextImport, IWordLibraryExport
+public sealed class ZiGuangPinyin : BaseTextImport, IWordLibraryTextImport, IWordLibraryExport
 {
     #region IWordLibraryImport 成员
 

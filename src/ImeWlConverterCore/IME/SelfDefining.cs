@@ -26,7 +26,7 @@ using Studyzy.IMEWLConverter.Helpers;
 namespace Studyzy.IMEWLConverter.IME;
 
 [ComboBoxShow(ConstantString.SELF_DEFINING, ConstantString.SELF_DEFINING_C, 2000)]
-public class SelfDefining
+public sealed class SelfDefining
     : BaseTextImport,
         IWordLibraryTextImport,
         IWordLibraryExport,

@@ -24,7 +24,7 @@ using Studyzy.IMEWLConverter.Entities;
 namespace Studyzy.IMEWLConverter.IME;
 
 [ComboBoxShow(ConstantString.LIBPINYIN, ConstantString.LIBPINYIN_C, 175)]
-public class Libpinyin : BaseTextImport, IWordLibraryTextImport, IWordLibraryExport
+public sealed class Libpinyin : BaseTextImport, IWordLibraryTextImport, IWordLibraryExport
 {
     public override Encoding Encoding => new UTF8Encoding(false);
 

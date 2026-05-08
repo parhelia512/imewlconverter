@@ -28,7 +28,7 @@ namespace Studyzy.IMEWLConverter.IME;
 ///     Win10微软拼音
 /// </summary>
 [ComboBoxShow(ConstantString.WIN10_MS_WUBI, ConstantString.WIN10_MS_WUBI_C, 131)]
-public class Win10MsWubi : IWordLibraryExport, IWordLibraryImport
+public sealed class Win10MsWubi : IWordLibraryExport, IWordLibraryImport
 {
     /*
      * _X 做后缀的字段表示 win10 1703 与 1607 有改动的部分
