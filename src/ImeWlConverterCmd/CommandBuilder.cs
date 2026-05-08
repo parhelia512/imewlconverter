@@ -21,6 +21,9 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.Linq;
+using ImeWlConverter.Abstractions.Contracts;
+using ImeWlConverter.Abstractions.Models;
+using ImeWlConverter.Core.Pipeline;
 
 namespace Studyzy.IMEWLConverter;
 
@@ -155,6 +158,13 @@ public static class CommandBuilder
             description: "显示所有支持的输入法格式列表");
         rootCommand.AddOption(listFormatsOption);
 
+        // 实验性：使用新转换管道
+        var usePipelineOption = new Option<bool>(
+            aliases: new[] { "--use-pipeline" },
+            description: "使用新转换管道（实验性）",
+            getDefaultValue: () => false);
+        rootCommand.AddOption(usePipelineOption);
+
         // 设置处理器 - 使用 context 方式处理参数
         rootCommand.SetHandler((context) =>
         {
@@ -237,7 +247,8 @@ public static class CommandBuilder
             // 调用转换逻辑
             try
             {
-                ExecuteConversion(options);
+                var usePipeline = context.ParseResult.GetValueForOption(usePipelineOption);
+                ExecuteConversion(options, usePipeline);
                 context.ExitCode = 0;
             }
             catch (Exception ex)
@@ -272,10 +283,31 @@ public static class CommandBuilder
         }
     }
 
-    private static void ExecuteConversion(CommandLineOptions options)
+    private static void ExecuteConversion(CommandLineOptions options, bool usePipeline)
     {
-        var (imports, exports, _) = FormatRegistrar.RegisterAll();
-        var consoleRun = new ConsoleRun(imports, exports);
-        consoleRun.Execute(options);
+        var (imports, exports, names) = FormatRegistrar.RegisterAll();
+
+        if (usePipeline)
+        {
+            var pipeline = PipelineHost.BuildPipeline(imports, exports, names);
+            var request = new ConversionRequest
+            {
+                InputFormatId = options.InputFormat,
+                OutputFormatId = options.OutputFormat,
+                InputPaths = options.InputFiles,
+                OutputPath = options.OutputPath
+            };
+            var result = pipeline.ExecuteAsync(request).GetAwaiter().GetResult();
+            if (!result.IsSuccess)
+            {
+                throw new InvalidOperationException(result.Error);
+            }
+            Console.WriteLine($"转换完成: 导入 {result.Value.ImportedCount} 条, 导出 {result.Value.ExportedCount} 条");
+        }
+        else
+        {
+            var consoleRun = new ConsoleRun(imports, exports);
+            consoleRun.Execute(options);
+        }
     }
 }

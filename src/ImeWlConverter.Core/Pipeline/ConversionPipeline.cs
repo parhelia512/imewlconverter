@@ -14,6 +14,7 @@ public sealed class ConversionPipeline : IConversionPipeline
     private readonly IEnumerable<IFormatImporter> _importers;
     private readonly IEnumerable<IFormatExporter> _exporters;
     private readonly IProgress<ProgressInfo>? _progress;
+    private readonly FilterPipeline? _filterPipeline;
 
     /// <summary>
     /// Initializes a new instance of <see cref="ConversionPipeline"/>.
@@ -21,11 +22,13 @@ public sealed class ConversionPipeline : IConversionPipeline
     public ConversionPipeline(
         IEnumerable<IFormatImporter> importers,
         IEnumerable<IFormatExporter> exporters,
-        IProgress<ProgressInfo>? progress = null)
+        IProgress<ProgressInfo>? progress = null,
+        FilterPipeline? filterPipeline = null)
     {
         _importers = importers;
         _exporters = exporters;
         _progress = progress;
+        _filterPipeline = filterPipeline;
     }
 
     /// <inheritdoc/>
@@ -56,14 +59,18 @@ public sealed class ConversionPipeline : IConversionPipeline
 
         var importedCount = allEntries.Count;
 
-        // 3. Filter pipeline (to be wired up; pass-through for now)
-        var exportedCount = allEntries.Count;
+        // 3. Filter
+        IReadOnlyList<WordEntry> filtered = _filterPipeline is not null
+            ? _filterPipeline.Apply(allEntries)
+            : allEntries;
+
+        var exportedCount = filtered.Count;
         var filteredCount = importedCount - exportedCount;
 
         // 4. Export
         _progress?.Report(new ProgressInfo(0, 0, "Exporting..."));
         using var outputStream = File.Create(request.OutputPath);
-        await exporter.ExportAsync(allEntries, outputStream, request.Options.Export, ct);
+        await exporter.ExportAsync(filtered, outputStream, request.Options.Export, ct);
 
         return Result<ConversionResult>.Success(new ConversionResult
         {
