@@ -17,20 +17,28 @@
 
 using System;
 using System.Windows.Forms;
+using ImeWlConverter.Core;
+using ImeWlConverter.Formats;
+using Microsoft.Extensions.DependencyInjection;
+using Studyzy.IMEWLConverter.Services;
 
 namespace Studyzy.IMEWLConverter;
 
 internal static class Program
 {
-    /// <summary>
-    ///     应用程序的主入口点。
-    /// </summary>
     [STAThread]
     private static void Main(string[] args)
     {
         Application.EnableVisualStyles();
         Application.SetHighDpiMode(HighDpiMode.SystemAware);
         Application.SetCompatibleTextRenderingDefault(false);
-        Application.Run(new MainForm());
+
+        var services = new ServiceCollection();
+        services.AddAllFormats();
+        services.AddImeWlConverterCore();
+        services.AddSingleton<IConversionOrchestrator, ConversionService>();
+        var serviceProvider = services.BuildServiceProvider();
+
+        Application.Run(new MainForm(serviceProvider));
     }
 }

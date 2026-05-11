@@ -17,31 +17,26 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using ImeWlConverter.Abstractions.Contracts;
-using ImeWlConverter.Abstractions.Enums;
 using ImeWlConverter.Abstractions.Models;
 using ImeWlConverter.Abstractions.Options;
-using ImeWlConverter.Core;
-using ImeWlConverter.Core.Filters;
 using ImeWlConverter.Core.Helpers;
-using ImeWlConverter.Core.Pipeline;
 using ImeWlConverter.Core.WordRank;
-using ImeWlConverter.Formats;
 using Microsoft.Extensions.DependencyInjection;
+using Studyzy.IMEWLConverter.Services;
 
 namespace Studyzy.IMEWLConverter;
 
 public partial class MainForm : Form
 {
-    private ServiceProvider _serviceProvider = null!;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IConversionOrchestrator _conversionService;
     private readonly IDictionary<string, IFormatImporter> _importers = new Dictionary<string, IFormatImporter>();
     private readonly IDictionary<string, IFormatExporter> _exporters = new Dictionary<string, IFormatExporter>();
 
@@ -55,28 +50,23 @@ public partial class MainForm : Form
 
     private string exportPath = "";
     private string outputDir = "";
-    private string errorMessages = "";
     private int _convertedCount;
 
-    // Conversion result storage
     private IReadOnlyList<string>? _exportContents;
+
+    private CancellationTokenSource? _cts;
 
     private bool exportDirectly => toolStripMenuItemExportDirectly.Checked;
     private bool mergeTo1File => toolStripMenuItemMergeToOneFile.Checked;
     private bool streamExport => toolStripMenuItemStreamExport.Checked;
 
-    public MainForm()
+    public MainForm(IServiceProvider serviceProvider)
     {
         InitializeComponent();
         LoadTitle();
-
-        // Initialize DI
-        var services = new ServiceCollection();
-        services.AddAllFormats();
-        services.AddImeWlConverterCore();
-        _serviceProvider = services.BuildServiceProvider();
-
-        _wordRankGenerator = new DefaultWordRankGenerator();
+        _serviceProvider = serviceProvider;
+        _conversionService = serviceProvider.GetRequiredService<IConversionOrchestrator>();
+        _wordRankGenerator = serviceProvider.GetRequiredService<IWordRankGenerator>();
     }
 
     private void LoadTitle()
@@ -85,10 +75,9 @@ public partial class MainForm : Form
         var infoVersion = assembly
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
             .InformationalVersion ?? "3.3.1";
-        // Remove Git commit info
-        if (infoVersion.Contains("+"))
+        if (infoVersion.Contains('+'))
             infoVersion = infoVersion.Split('+')[0];
-        if (infoVersion.Contains("-"))
+        if (infoVersion.Contains('-'))
             infoVersion = infoVersion.Split('-')[0];
 
         Text = "深蓝词库转换" + infoVersion;
@@ -169,13 +158,9 @@ public partial class MainForm : Form
             if (form != null)
             {
                 if (form is SelfDefiningConfigForm selfDefForm)
-                {
                     selfDefForm.ShowDialog();
-                }
                 else
-                {
                     form.ShowDialog();
-                }
             }
         }
     }
@@ -201,7 +186,7 @@ public partial class MainForm : Form
 
     private void MainForm_DragEnter(object sender, DragEventArgs e)
     {
-        if (e.Data.GetDataPresent(DataFormats.FileDrop))
+        if (e.Data?.GetDataPresent(DataFormats.FileDrop) == true)
             e.Effect = DragDropEffects.Link;
         else
             e.Effect = DragDropEffects.None;
@@ -209,7 +194,8 @@ public partial class MainForm : Form
 
     private void MainForm_DragDrop(object sender, DragEventArgs e)
     {
-        var array = (Array)e.Data.GetData(DataFormats.FileDrop);
+        var array = e.Data?.GetData(DataFormats.FileDrop) as Array;
+        if (array == null || array.Length == 0) return;
         var files = "";
 
         foreach (var a in array)
@@ -221,19 +207,14 @@ public partial class MainForm : Form
         txbWLPath.Text = files.Remove(files.Length - 3);
         if (array.Length == 1)
         {
-            var autoType = AutoMatchImportType(array.GetValue(0).ToString());
+            var autoType = AutoMatchImportType(array.GetValue(0)?.ToString() ?? "");
             if (autoType != null) cbxFrom.Text = autoType;
         }
     }
 
-    /// <summary>
-    /// Auto-detect import format based on file extension.
-    /// Returns the DisplayName of the matching importer, or null.
-    /// </summary>
     private string? AutoMatchImportType(string filePath)
     {
         var ext = Path.GetExtension(filePath).ToLower();
-        // Map common extensions to format IDs
         var extToId = new Dictionary<string, string>
         {
             { ".scel", "scel" },
@@ -288,267 +269,129 @@ public partial class MainForm : Form
         return true;
     }
 
-    private void btnConvert_Click(object sender, EventArgs e)
+    private async void btnConvert_Click(object? sender, EventArgs e)
     {
         if (!CheckCanRun()) return;
+
+        if (streamExport)
+        {
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                exportPath = saveFileDialog1.FileName;
+            else
+            {
+                ShowStatusMessage("请选择词库保存的路径，否则将无法进行词库导出", true);
+                return;
+            }
+        }
+
+        if (!mergeTo1File)
+        {
+            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+                outputDir = folderBrowserDialog1.SelectedPath;
+            else
+            {
+                ShowStatusMessage("请选择词库保存的路径，否则将无法进行词库导出", true);
+                return;
+            }
+        }
+
         richTextBox1.Clear();
-        errorMessages = "";
         _exportContents = null;
+        _cts = new CancellationTokenSource();
+        SetConvertingState(true);
+
+        var request = new WinConversionRequest
+        {
+            Importer = _selectedImporter!,
+            Exporter = _selectedExporter!,
+            InputFiles = FileOperationHelper.GetFilesPath(txbWLPath.Text).ToList(),
+            FilterConfig = filterConfig,
+            ChineseConversion = _chineseConversionMode,
+            WordRankGenerator = _wordRankGenerator,
+            MergeToOneFile = mergeTo1File,
+            OutputDirectory = outputDir,
+            StreamExport = streamExport,
+            StreamExportPath = exportPath,
+        };
+
+        var progress = new Progress<ProgressInfo>(OnProgressReported);
+
         try
         {
-            if (streamExport)
-            {
-                if (saveFileDialog1.ShowDialog() == DialogResult.OK)
-                {
-                    exportPath = saveFileDialog1.FileName;
-                }
-                else
-                {
-                    ShowStatusMessage("请选择词库保存的路径，否则将无法进行词库导出", true);
-                    return;
-                }
-            }
-
-            if (!mergeTo1File)
-            {
-                if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
-                {
-                    outputDir = folderBrowserDialog1.SelectedPath;
-                }
-                else
-                {
-                    ShowStatusMessage("请选择词库保存的路径，否则将无法进行词库导出", true);
-                    return;
-                }
-            }
-
-            timer1.Enabled = true;
-            backgroundWorker1.RunWorkerAsync();
+            var result = await _conversionService.ConvertAsync(request, progress, _cts.Token);
+            _convertedCount = result.ConvertedCount;
+            _exportContents = result.ExportLines;
+            HandleConversionCompleted(result);
+        }
+        catch (OperationCanceledException)
+        {
+            ShowStatusMessage("转换已取消", false);
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.Message, "出错", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show("不好意思，发生了错误：" + ex.Message, "出错",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            SetConvertingState(false);
+            _cts?.Dispose();
+            _cts = null;
         }
     }
 
-    private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+    private void OnProgressReported(ProgressInfo info)
     {
-        var files = FileOperationHelper.GetFilesPath(txbWLPath.Text);
-        var importer = _selectedImporter!;
-        var exporter = _selectedExporter!;
-
-        // Build filter pipeline
-        var filters = BuildFilters();
-        var transforms = BuildTransforms();
-        var batchFilters = BuildBatchFilters();
-        var filterPipeline = new FilterPipeline(filters, transforms, batchFilters);
-
-        // Import all files
-        RichTextBoxShow("正在导入...");
-        var allEntries = new List<WordEntry>();
-        foreach (var file in files)
+        if (info.Total > 0)
         {
-            try
-            {
-                using var stream = File.OpenRead(file);
-                var importResult = importer.ImportAsync(stream, new ImportOptions(), CancellationToken.None).GetAwaiter().GetResult();
-                allEntries.AddRange(importResult.Entries);
-                RichTextBoxShow($"已导入 {file}，{importResult.Entries.Count} 条");
-            }
-            catch (Exception ex)
-            {
-                WriteErrorMessage($"导入 {file} 失败: {ex.Message}");
-            }
+            toolStripProgressBar1.Maximum = info.Total;
+            toolStripProgressBar1.Value = Math.Min(info.Current, info.Total);
         }
-
-        // Filter
-        RichTextBoxShow("正在过滤...");
-        IReadOnlyList<WordEntry> entries = filterPipeline.Apply(allEntries);
-
-        // Chinese conversion
-        if (_chineseConversionMode != ChineseConversionMode.None)
+        if (info.Message is not null)
         {
-            var converter = _serviceProvider.GetService<IChineseConverter>();
-            if (converter != null)
-            {
-                entries = ApplyChineseConversion(entries, converter);
-            }
+            toolStripStatusLabel1.Text = info.Message;
+            richTextBox1.AppendText(info.Message + "\r\n");
         }
+    }
 
-        // Word rank generation
-        entries = _wordRankGenerator.GenerateRanksAsync(entries, CancellationToken.None).GetAwaiter().GetResult();
-
-        // Code generation (let the exporter handle its own code type needs)
-        var codeGenService = _serviceProvider.GetService<ImeWlConverter.Core.CodeGeneration.CodeGenerationService>();
-        if (codeGenService != null)
+    private void SetConvertingState(bool converting)
+    {
+        if (converting)
         {
-            var targetCodeType = CodeType.Pinyin; // Default; exporter determines actual need
-            entries = codeGenService.GenerateCodes(entries, targetCodeType, null);
-        }
-
-        _convertedCount = entries.Count;
-
-        // Export
-        RichTextBoxShow($"正在导出 {entries.Count} 条词条...");
-        if (mergeTo1File)
-        {
-            using var outputStream = new MemoryStream();
-            exporter.ExportAsync(entries, outputStream, new ExportOptions(), CancellationToken.None).GetAwaiter().GetResult();
-            outputStream.Position = 0;
-            using var reader = new StreamReader(outputStream);
-            var content = reader.ReadToEnd();
-            _exportContents = content.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+            btnConvert.Text = "取 消";
+            btnConvert.Click -= btnConvert_Click;
+            btnConvert.Click += btnCancel_Click;
+            cbxFrom.Enabled = false;
+            cbxTo.Enabled = false;
+            btnOpenFileDialog.Enabled = false;
+            toolStripProgressBar1.Value = 0;
         }
         else
         {
-            // Export each file separately
-            foreach (var file in files)
-            {
-                var outputFile = Path.Combine(outputDir, Path.GetFileNameWithoutExtension(file) + ".txt");
-                using var stream = File.OpenRead(file);
-                var importResult = importer.ImportAsync(stream, new ImportOptions(), CancellationToken.None).GetAwaiter().GetResult();
-                IReadOnlyList<WordEntry> fileEntries = filterPipeline.Apply(importResult.Entries.ToList());
-
-                using var outStream = File.Create(outputFile);
-                exporter.ExportAsync(fileEntries, outStream, new ExportOptions(), CancellationToken.None).GetAwaiter().GetResult();
-                RichTextBoxShow($"已导出: {outputFile}");
-            }
+            btnConvert.Text = "转 换";
+            btnConvert.Click -= btnCancel_Click;
+            btnConvert.Click += btnConvert_Click;
+            cbxFrom.Enabled = true;
+            cbxTo.Enabled = true;
+            btnOpenFileDialog.Enabled = true;
         }
-
-        timer1.Enabled = false;
     }
 
-    private IReadOnlyList<WordEntry> ApplyChineseConversion(
-        IReadOnlyList<WordEntry> entries, IChineseConverter converter)
+    private void btnCancel_Click(object? sender, EventArgs e)
     {
-        var result = new List<WordEntry>(entries.Count);
-        foreach (var entry in entries)
-        {
-            var converted = _chineseConversionMode switch
-            {
-                ChineseConversionMode.SimplifiedToTraditional =>
-                    entry with { Word = converter.ToTraditional(entry.Word) },
-                ChineseConversionMode.TraditionalToSimplified =>
-                    entry with { Word = converter.ToSimplified(entry.Word) },
-                _ => entry
-            };
-            result.Add(converted);
-        }
-        return result;
+        _cts?.Cancel();
+        ShowStatusMessage("正在取消...", false);
     }
 
-    #endregion
-
-    #region 过滤器构建
-
-    private IList<IWordFilter> BuildFilters()
+    private void HandleConversionCompleted(WinConversionResult result)
     {
-        var filters = new List<IWordFilter>();
-        if (filterConfig.NoFilter) return filters;
-        if (filterConfig.IgnoreEnglish) filters.Add(new EnglishFilter());
-        if (filterConfig.IgnoreFirstCJK) filters.Add(new FirstCJKFilter());
-
-        if (filterConfig.WordLengthFrom > 1 || filterConfig.WordLengthTo < 9999)
-            filters.Add(new LengthFilter { MinLength = filterConfig.WordLengthFrom, MaxLength = filterConfig.WordLengthTo });
-
-        if (filterConfig.WordRankFrom > 1 || filterConfig.WordRankTo < 999999)
-            filters.Add(new RankFilter { MinRank = filterConfig.WordRankFrom, MaxRank = filterConfig.WordRankTo });
-
-        if (filterConfig.IgnoreSpace) filters.Add(new SpaceFilter());
-        if (filterConfig.IgnorePunctuation)
-        {
-            filters.Add(new ChinesePunctuationFilter());
-            filters.Add(new EnglishPunctuationFilter());
-        }
-        if (filterConfig.IgnoreNumber) filters.Add(new NumberFilter());
-        if (filterConfig.IgnoreNoAlphabetCode) filters.Add(new NoAlphabetCodeFilter());
-        return filters;
-    }
-
-    private IList<IWordTransform> BuildTransforms()
-    {
-        var transforms = new List<IWordTransform>();
-        if (filterConfig.NoFilter) return transforms;
-        if (filterConfig.ReplaceEnglish) transforms.Add(new EnglishRemoveTransform());
-        if (filterConfig.ReplacePunctuation)
-        {
-            transforms.Add(new EnglishPunctuationRemoveTransform());
-            transforms.Add(new ChinesePunctuationRemoveTransform());
-        }
-        if (filterConfig.ReplaceSpace) transforms.Add(new SpaceRemoveTransform());
-        if (filterConfig.ReplaceNumber) transforms.Add(new NumberRemoveTransform());
-        return transforms;
-    }
-
-    private IList<IBatchFilter> BuildBatchFilters()
-    {
-        var filters = new List<IBatchFilter>();
-        if (filterConfig.NoFilter) return filters;
-        if (filterConfig.WordRankPercentage < 100)
-        {
-            filters.Add(new RankPercentageFilter { Percentage = filterConfig.WordRankPercentage });
-        }
-        return filters;
-    }
-
-    #endregion
-
-    #region UI 显示
-
-    private void ShowStatusMessage(string statusMessage, bool showMessageBox)
-    {
-        toolStripStatusLabel1.Text = statusMessage;
-        if (showMessageBox)
-            MessageBox.Show(
-                statusMessage,
-                "深蓝词库转换",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-            );
-    }
-
-    private void timer1_Tick(object sender, EventArgs e)
-    {
-        ShowStatusMessage("转换中...", false);
-    }
-
-    private void RichTextBoxShow(string msg)
-    {
-        if (richTextBox1.InvokeRequired)
-            richTextBox1.Invoke(() => richTextBox1.AppendText(msg + "\r\n"));
-        else
-            richTextBox1.AppendText(msg + "\r\n");
-    }
-
-    private void WriteErrorMessage(string msg)
-    {
-        errorMessages += msg + "\r\n";
-    }
-
-    private void backgroundWorker1_RunWorkerCompleted(
-        object sender,
-        RunWorkerCompletedEventArgs e
-    )
-    {
-        timer1.Enabled = false;
         toolStripProgressBar1.Value = toolStripProgressBar1.Maximum;
         ShowStatusMessage("转换完成", false);
-        if (errorMessages.Length > 0)
-        {
-            var errForm = new ErrorLogForm(errorMessages);
-            errForm.ShowDialog();
-        }
 
-        if (e.Error != null)
+        if (result.ErrorMessages.Length > 0)
         {
-            MessageBox.Show(
-                "不好意思，发生了错误：" + e.Error.Message,
-                "出错",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Error
-            );
-            if (e.Error.InnerException != null) RichTextBoxShow(e.Error.InnerException.ToString());
-            return;
+            var errForm = new ErrorLogForm(result.ErrorMessages);
+            errForm.ShowDialog();
         }
 
         if (!mergeTo1File)
@@ -565,14 +408,14 @@ public partial class MainForm : Form
         if (exportDirectly)
         {
             richTextBox1.Text =
-                "为提高处理速度，"高级设置"中选中了"不显示结果，直接导出"，本文本框中不显示转换后的结果，若要查看转换后的结果再确定是否保存请取消该设置。";
+                "为提高处理速度，\u201c高级设置\u201d中选中了\u201c不显示结果，直接导出\u201d，本文本框中不显示转换后的结果，若要查看转换后的结果再确定是否保存请取消该设置。";
         }
         else if (_exportContents != null)
         {
             var dataText = string.Join("\r\n", _exportContents);
             if (toolStripMenuItemShowLess.Checked && dataText.Length > 200000)
                 richTextBox1.Text =
-                    "为避免输出时卡死，"高级设置"中选中了"结果只显示首、末10万字"，本文本框中不显示转换后的全部结果，若要查看转换后的结果再确定是否保存请取消该设置。\n\n"
+                    "为避免输出时卡死，\u201c高级设置\u201d中选中了\u201c结果只显示首、末10万字\u201d，本文本框中不显示转换后的全部结果，若要查看转换后的结果再确定是否保存请取消该设置。\n\n"
                     + dataText.Substring(0, 100000)
                     + "\n\n\n...\n\n\n"
                     + dataText.Substring(dataText.Length - 100000);
@@ -613,6 +456,22 @@ public partial class MainForm : Form
                 MessageBoxIcon.Warning
             );
         }
+    }
+
+    #endregion
+
+    #region UI 辅助
+
+    private void ShowStatusMessage(string statusMessage, bool showMessageBox)
+    {
+        toolStripStatusLabel1.Text = statusMessage;
+        if (showMessageBox)
+            MessageBox.Show(
+                statusMessage,
+                "深蓝词库转换",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information
+            );
     }
 
     #endregion

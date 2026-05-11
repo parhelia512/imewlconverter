@@ -3,6 +3,7 @@
         <!-- 移除Windows SDK依赖，仅使用基础Windows桌面支持 -->
         <TargetFramework>net10.0-windows</TargetFramework>
         <OutputType>WinExe</OutputType>
+        <Nullable>enable</Nullable>
         <RootNamespace>Studyzy.IMEWLConverter</RootNamespace>
         <AssemblyName>深蓝词库转换</AssemblyName>
         <ApplicationIcon>app.ico</ApplicationIcon>
@@ -44,7 +45,7 @@
         <ManifestKeyFile>IME WL Converter_TemporaryKey.pfx</ManifestKeyFile>
     </PropertyGroup>
     <PropertyGroup>
-        <GenerateManifests>true</GenerateManifests>
+        <GenerateManifests>false</GenerateManifests>
     </PropertyGroup>
     <PropertyGroup>
         <SignManifests>false</SignManifests>
@@ -154,8 +155,6 @@ GitHub: https://github.com/studyzy/imewlconverter</Description>
         <Compile Remove="Forms\SelfDefiningConfigFormImport.cs"/>
         <Compile Remove="Language\MsVbComponent.cs"/>
         <Compile Remove="Resource1.Designer.cs"/>
-        <Compile Remove="WPF\App.xaml.cs"/>
-        <Compile Remove="WPF\MainWindow.xaml.cs"/>
         <EmbeddedResource Remove="Forms\CreatePinyinWLForm.resx"/>
         <EmbeddedResource Remove="Forms\SelfDefiningConfigFormExport.resx"/>
         <EmbeddedResource Remove="Forms\SelfDefiningConfigFormImport.resx"/>

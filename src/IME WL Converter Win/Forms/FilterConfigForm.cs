@@ -74,12 +74,11 @@ public class FilterConfig
 
 public partial class FilterConfigForm : Form
 {
-    private static FilterConfig filterConfig;
+    private static FilterConfig filterConfig = new();
 
     public FilterConfigForm()
     {
         InitializeComponent();
-        if (filterConfig == null) filterConfig = new FilterConfig();
     }
 
     public FilterConfig FilterConfig => filterConfig;

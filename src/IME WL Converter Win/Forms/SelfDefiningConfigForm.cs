@@ -60,7 +60,7 @@ public partial class SelfDefiningConfigForm : Form
     ///     用户自定义的匹配模式
     /// </summary>
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public ParsePattern SelectedParsePattern { get; set; }
+    public ParsePattern SelectedParsePattern { get; set; } = new();
 
     private void InitParsePattern()
     {

@@ -33,7 +33,7 @@ public partial class PhraseFormatConfigForm : Form
         InitializeComponent();
     }
 
-    public string PhraseFormat { get; private set; }
+    public string PhraseFormat { get; private set; } = "";
 
     public CodeType SelectedCodeType => selectCodeType;
 
