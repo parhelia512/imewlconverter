@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using ImeWlConverter.Abstractions.Enums;
 using ImeWlConverter.Abstractions.Options;
 
 namespace ImeWlConverterMac.Views;

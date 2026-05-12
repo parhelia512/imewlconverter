@@ -332,7 +332,7 @@ public static class CommandBuilder
         public void Report(ProgressInfo value)
         {
             if (!string.IsNullOrEmpty(value.Message))
-                Console.Error.Write($"\r{value.Message}");
+                Console.Error.Write($"\r{value.Message,-80}");
         }
     }
 }

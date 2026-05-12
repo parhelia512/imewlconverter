@@ -18,6 +18,7 @@
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
+using ImeWlConverter.Abstractions.Enums;
 using ImeWlConverter.Abstractions.Options;
 
 namespace Studyzy.IMEWLConverter;

@@ -10,6 +10,7 @@ using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using ImeWlConverter.Abstractions.Contracts;
+using ImeWlConverter.Abstractions.Enums;
 using ImeWlConverter.Abstractions.Models;
 using ImeWlConverter.Abstractions.Options;
 using Microsoft.Extensions.DependencyInjection;
@@ -613,25 +614,4 @@ public class MainWindowViewModel : ViewModelBase
     }
 
     #endregion
-}
-
-// 简单的命令实现
-public class RelayCommand : ICommand
-{
-    private readonly Action _execute;
-    private readonly Func<bool>? _canExecute;
-
-    public RelayCommand(Action execute, Func<bool>? canExecute = null)
-    {
-        _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-        _canExecute = canExecute;
-    }
-
-    public event EventHandler? CanExecuteChanged;
-
-    public bool CanExecute(object? parameter) => _canExecute?.Invoke() ?? true;
-
-    public void Execute(object? parameter) => _execute();
-
-    public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
 }

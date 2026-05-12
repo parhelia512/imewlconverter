@@ -20,16 +20,3 @@ public sealed class ConversionOptions
     /// <summary>Chinese simplified/traditional conversion mode.</summary>
     public ChineseConversionMode ChineseConversion { get; init; } = ChineseConversionMode.None;
 }
-
-/// <summary>Chinese conversion modes.</summary>
-public enum ChineseConversionMode
-{
-    /// <summary>No conversion.</summary>
-    None = 0,
-
-    /// <summary>Convert simplified Chinese to traditional.</summary>
-    SimplifiedToTraditional,
-
-    /// <summary>Convert traditional Chinese to simplified.</summary>
-    TraditionalToSimplified
-}

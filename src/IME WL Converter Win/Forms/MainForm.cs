@@ -24,6 +24,7 @@ using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using ImeWlConverter.Abstractions.Contracts;
+using ImeWlConverter.Abstractions.Enums;
 using ImeWlConverter.Abstractions.Models;
 using ImeWlConverter.Abstractions.Options;
 using ImeWlConverter.Core.Helpers;
